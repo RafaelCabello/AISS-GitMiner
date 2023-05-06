@@ -1,7 +1,14 @@
 package aiss.gitminer.controller;
 
+import aiss.gitminer.exception.ProjectNotFoundException;
 import aiss.gitminer.model.Project;
 import aiss.gitminer.repository.ProjectRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,26 +22,79 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/gitminer/projects")
 public class ProjectController {
 
     @Autowired
     ProjectRepository projectRepository;
 
-    // GET http://localhost:8080/api/projects
+    // GET http://localhost:8080/gitminer/projects
+    @Operation(
+            summary = "Retrieve a list of projects",
+            description = "Get a list of projects",
+            tags = {"projects", "get"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of projects",
+                    content = {@Content(schema = @Schema(implementation = Project.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "Projects not found",
+                    content = {@Content(schema = @Schema())})
+    })
     @GetMapping
-    public List<Project> findAll() {
-        return projectRepository.findAll();
+    public List<Project> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
+                                 @RequestParam(required = false) String name, @RequestParam(required = false) String order) {
+        Pageable paging;
+
+        // Ordering and paging
+        if(order != null) {
+            if (order.startsWith("-"))
+                paging = PageRequest.of(page, size, Sort.by(order.substring(1)).descending());
+            else
+                paging = PageRequest.of(page, size, Sort.by(order).ascending());
+        }
+        else
+            paging = PageRequest.of(page, size);
+
+        //Filtering
+        Page<Project> pageProjects;
+        if (name != null)
+            pageProjects = projectRepository.findByName(name, paging);
+        else
+            pageProjects = projectRepository.findAll(paging);
+        return pageProjects.getContent();
     }
 
-    // GET http://localhost:8080/api/projects/{id}
+    // GET http://localhost:8080/gitminer/projects/{id}
+    @Operation(
+            summary = "Retrieve a project by id",
+            description = "Get a project by specifying its id",
+            tags = {"projects", "get"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Project found",
+                    content = { @Content(schema = @Schema(implementation = Project.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "404", description="Project not found",
+                    content = { @Content(schema = @Schema()) })
+    })
     @GetMapping("/{id}")
-    public Project findOne(@PathVariable long id) {
+    public Project findOne(@Parameter(description = "id of project to be searched") @PathVariable long id)
+            throws ProjectNotFoundException{
         Optional<Project> project = projectRepository.findById(id);
+        if (!project.isPresent()) {
+            throw new ProjectNotFoundException();
+        }
         return project.get();
     }
 
     // POST http://localhost:8080/api/projects
+    @Operation(
+            summary = "Create new project",
+            description = "Create a new project",
+            tags = {"projects", "post"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Project created",
+                    content = {@Content(schema = @Schema(implementation = Project.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "Project not created",
+                    content = {@Content(schema = @Schema())})
+    })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Project create(@RequestBody @Valid Project project) {
@@ -44,9 +104,20 @@ public class ProjectController {
     }
 
     // PUT http://localhost:8080/api/projects/{id}
+    @Operation(
+            summary = "Update project",
+            description = "Modify an existing project",
+            tags = {"projects", "put"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Project updated",
+                    content = {@Content(schema = @Schema(implementation = Project.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "Project not found",
+                    content = {@Content(schema = @Schema())})
+    })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void update(@Valid @RequestBody Project updatedProject, @PathVariable long id) {
+    public void update(@Valid @RequestBody Project updatedProject,
+                       @Parameter(description = "id of project to be updated") @PathVariable long id) {
         Optional<Project> projectData = projectRepository.findById(id);
 
         Project _project = projectData.get();
@@ -56,9 +127,19 @@ public class ProjectController {
     }
 
     // DELETE https://localhost:8080/api/projects/{id}
+    @Operation(
+            summary = "Delete project",
+            description = "Delete an existing project",
+            tags = {"projects", "delete"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Project deleted",
+                    content = {@Content(schema = @Schema(implementation = Project.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "Project not found",
+                    content = {@Content(schema = @Schema())})
+    })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
+    public void delete(@Parameter(description = "id of project to be deleted") @PathVariable long id) {
         if (projectRepository.existsById(id)) {
             projectRepository.deleteById(id);
         }
