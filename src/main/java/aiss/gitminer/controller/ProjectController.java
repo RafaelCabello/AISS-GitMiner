@@ -38,16 +38,8 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Project create(@RequestBody @Valid Project project) {
-        Project _project = projectRepository.save(new Project(project.getId(), project.getName(), project.getWebUrl()));
-        /*
-        _project.setId(project.getId());
-        _project.setName(project.getName());
-        _project.setWebUrl(project.getWebUrl());
-        _project.setCommits(project.getCommits());
-        _project.setIssues(project.getIssues());
-
-         */
-        //projectRepository.save(_project);
+        Project _project = projectRepository.save(new Project(project.getId(), project.getName(), project.getWebUrl(),
+                project.getCommits(), project.getIssues()));
         return _project;
     }
 
