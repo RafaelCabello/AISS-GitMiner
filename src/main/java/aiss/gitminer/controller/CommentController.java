@@ -67,7 +67,7 @@ public class CommentController {
                     content = { @Content(schema = @Schema()) })
     })
     @GetMapping("/{id}")
-    public Comment findOne(@Parameter(description = "id of comment to be searched") @PathVariable long id) {
+    public Comment findOne(@Parameter(description = "id of comment to be searched") @PathVariable String id) {
         Optional<Comment> comment = commentRepository.findById(id);
         return comment.get();
     }

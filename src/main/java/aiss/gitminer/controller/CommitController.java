@@ -76,7 +76,7 @@ public class CommitController {
                     content = { @Content(schema = @Schema()) })
     })
     @GetMapping("/{id}")
-    public Commit findOne(@Parameter(description = "id of commit to be searched") @PathVariable long id) {
+    public Commit findOne(@Parameter(description = "id of commit to be searched") @PathVariable String id) {
         Optional<Commit> commit = commitRepository.findById(id);
         return commit.get();
     }

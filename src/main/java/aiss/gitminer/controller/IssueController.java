@@ -56,15 +56,15 @@ public class IssueController {
 
         //Filtering
         Page<Issue> pageIssue;
-        if (authorId != null)
+        if (authorId != null && state != null)
+            pageIssue = issueRepository.findByAuthorIdAndState(authorId, state, paging);
+        else if (authorId != null)
             pageIssue = issueRepository.findByAuthorId(authorId, paging);
-        /*
-        if (state != null)
+        else if (state != null)
             pageIssue = issueRepository.findByState(state, paging);
-
-         */
         else
             pageIssue = issueRepository.findAll(paging);
+
         return pageIssue.getContent();
     }
 
@@ -80,12 +80,11 @@ public class IssueController {
                     content = { @Content(schema = @Schema()) })
     })
     @GetMapping("/{id}")
-    public Issue findOne(@Parameter(description = "id of issue to be searched") @PathVariable long id) {
+    public Issue findOne(@Parameter(description = "id of issue to be searched") @PathVariable String id) {
         Optional<Issue> issue = issueRepository.findById(id);
         return issue.get();
     }
 
-    // TODO: arreglar getComments()
     // GET http://localhost:8080/gitminer/issues/{id}/comments
     @Operation(
             summary = "Retrieve comments of an issue",
@@ -98,7 +97,7 @@ public class IssueController {
                     content = { @Content(schema = @Schema()) })
     })
     @GetMapping("/{id}/comments")
-    public List<Comment> getComments(@Parameter(description = "id of issue to be searched") @PathVariable long id) {
+    public List<Comment> getComments(@Parameter(description = "id of issue to be searched") @PathVariable String id) {
         Optional<Issue> issue = issueRepository.findById(id);
         Issue _issue = issue.get();
         return issue.get().getComments();

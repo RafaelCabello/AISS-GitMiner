@@ -75,7 +75,7 @@ public class ProjectController {
                     content = { @Content(schema = @Schema()) })
     })
     @GetMapping("/{id}")
-    public Project findOne(@Parameter(description = "id of project to be searched") @PathVariable long id)
+    public Project findOne(@Parameter(description = "id of project to be searched") @PathVariable String id)
             throws ProjectNotFoundException{
         Optional<Project> project = projectRepository.findById(id);
         if (!project.isPresent()) {
@@ -117,7 +117,7 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void update(@Valid @RequestBody Project updatedProject,
-                       @Parameter(description = "id of project to be updated") @PathVariable long id) {
+                       @Parameter(description = "id of project to be updated") @PathVariable String id) {
         Optional<Project> projectData = projectRepository.findById(id);
 
         Project _project = projectData.get();
@@ -139,7 +139,7 @@ public class ProjectController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void delete(@Parameter(description = "id of project to be deleted") @PathVariable long id) {
+    public void delete(@Parameter(description = "id of project to be deleted") @PathVariable String id) {
         if (projectRepository.existsById(id)) {
             projectRepository.deleteById(id);
         }

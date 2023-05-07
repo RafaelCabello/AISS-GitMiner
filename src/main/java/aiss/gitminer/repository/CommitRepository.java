@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CommitRepository extends JpaRepository<Commit, Long> {
+public interface CommitRepository extends JpaRepository<Commit, String> {
     Page<Commit> findByAuthorEmail(String author_email, Pageable pageable);
 }
