@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/gitminer")
+@RequestMapping("/gitminer/projects")
 public class ProjectController {
 
     @Autowired
     ProjectRepository projectRepository;
 
-    // GET http://localhost:8080/gitminer
+    // GET http://localhost:8080/gitminer/projects
     @Operation(
             summary = "Retrieve a list of projects",
             description = "Get a list of projects",
@@ -63,7 +63,7 @@ public class ProjectController {
         return pageProjects.getContent();
     }
 
-    // GET http://localhost:8080/gitminer/{id}
+    // GET http://localhost:8080/gitminer/projects/{id}
     @Operation(
             summary = "Retrieve a project by id",
             description = "Get a project by specifying its id",
@@ -84,7 +84,7 @@ public class ProjectController {
         return project.get();
     }
 
-    // POST http://localhost:8080/gitminer
+    // POST http://localhost:8080/gitminer/projects
     @Operation(
             summary = "Create new project",
             description = "Create a new project",
@@ -103,7 +103,7 @@ public class ProjectController {
         return _project;
     }
 
-    // PUT http://localhost:8080/api/{id}
+    // PUT http://localhost:8080/gitminer/projects/{id}
     @Operation(
             summary = "Update project",
             description = "Modify an existing project",
@@ -126,7 +126,7 @@ public class ProjectController {
         projectRepository.save(_project);
     }
 
-    // DELETE https://localhost:8080/api/{id}
+    // DELETE http://localhost:8080/gitminer/projects/{id}
     @Operation(
             summary = "Delete project",
             description = "Delete an existing project",
